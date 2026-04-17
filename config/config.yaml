@@ -84,7 +84,7 @@ uncertainty:
 visualization:
   graph:   true    # genera i grafici
   show:    false   # mostra le finestre durante l'esecuzione
-  dpi:     300
+  dpi:     600
   figsize: [12, 8]
   comparison_metrics:
     - "accuracy"
