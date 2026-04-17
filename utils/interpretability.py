@@ -110,4 +110,6 @@ def run_shap_analysis(all_results: dict, data: dict, config: dict):
             figsize=figsize,
         )
 
+    print()
     logger.info("Analisi SHAP completata.")
+    print()

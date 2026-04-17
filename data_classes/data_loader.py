@@ -46,7 +46,7 @@ def download_dataset(config: dict):
     """Scarica il dataset da Kaggle se non è già presente nella data_dir."""
     data_dir = config["paths"]["data_dir"]
     if os.path.exists(data_dir) and os.listdir(data_dir):
-        logger.info(f"Dataset già presente in '{data_dir}'. Download saltato.")
+        logger.info(f"Dataset già presente in '{data_dir}'. Skip download.")
         return
 
     try:
@@ -355,7 +355,7 @@ def load_and_preprocess(config: dict) -> dict:
     train_ds, val_ds = _resize_splits(train_ds, val_ds, split_pct)
 
     logger.info(
-        f"\nDataset dopo ridistribuzione "
+        f"\nDataset dopo la ridistribuzione "
         f"({split_pct:.0%} train / {1 - split_pct:.0%} val):"
     )
     _log_split_info("Train",      train_ds, cls_type)

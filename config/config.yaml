@@ -33,7 +33,7 @@ training:
 # --- Deep Learning (ResNet / AlexNet) ---
 deep_learning:
   epochs:               20
-  batch_size:           32
+  batch_size:           192
   optimizer:            "adam"   # adam | sgd | rmsprop
   warmup_ratio:         0.1
   oversampling_strength: 1       # moltiplicatore del WeightedRandomSampler

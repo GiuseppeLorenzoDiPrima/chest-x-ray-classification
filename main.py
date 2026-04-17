@@ -240,8 +240,8 @@ def _train_dl_model(model, model_name: str, config: dict,
         val_hist.append(val_m)
 
         logger.info(
-            f"    train loss {train_m['loss']:.4f}  acc {train_m['accuracy']:.4f} | "
-            f"val loss {val_m['loss']:.4f}  acc {val_m['accuracy']:.4f}"
+            f"    Train: loss {train_m['loss']:.4f}  acc {train_m['accuracy']:.4f} | "
+            f"Val: loss {val_m['loss']:.4f}  acc {val_m['accuracy']:.4f}"
         )
 
         # Aggiorna miglior modello
@@ -251,7 +251,7 @@ def _train_dl_model(model, model_name: str, config: dict,
             best_val       = current
             best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
             no_improve = 0
-            logger.info(f"    ✓ Nuovo miglior modello (val {eval_metric}: {best_val:.4f})")
+            logger.info(f"    ✓ Nuovo miglior modello (Val {eval_metric}: {best_val:.4f})")
         else:
             no_improve += 1
             if val_m[es_metric] < val_hist[-2][es_metric] if len(val_hist) > 1 else True:
@@ -259,7 +259,7 @@ def _train_dl_model(model, model_name: str, config: dict,
 
         # Early stopping
         if no_improve >= patience:
-            logger.info(f"    Early stopping alla epoch {epoch + 1}.")
+            logger.info(f"    Early stopping alla epoca {epoch + 1}.")
             break
 
     if best_model_state is not None:
@@ -294,6 +294,13 @@ def run_phase2_dl(data: dict, config: dict,
     test_dl  = _build_dataloader(data["test_dataset"],  config, shuffle=False)
 
     for model_name in to_train:
+        if model_name.lower() in ("resnet", "alexnet"):
+            print()
+            logger.info(f"{'-' * 18}")
+            logger.info(f"  {model_name} model:")
+            logger.info(f"{'-' * 18}")
+            print()
+        
         if model_name.lower() == "resnet":
             model = build_resnet(config).to(device)
         elif model_name.lower() == "alexnet":
@@ -302,18 +309,22 @@ def run_phase2_dl(data: dict, config: dict,
             continue
 
         print()
-        logger.info(f"{'=' * 50}")
-        logger.info(f"Training {model_name}...")
-        logger.info(f"{'=' * 50}")
-
-        best_val_m, train_hist, val_hist = _train_dl_model(
+        logger.info(f"{'=' * 35}")
+        logger.info(f"  Training {model_name} model...")
+        logger.info(f"{'=' * 35}")
+        _, train_hist, val_hist = _train_dl_model(
             model, model_name, config, train_dl, val_dl, device
         )
 
+        print()
+        logger.info(f"Addestramento {model_name} completato. Creazione dei grafici...")
+        
         # Grafici training
         if config["visualization"].get("graph", True):
             plot_training_history(train_hist, val_hist, model_name, config)
 
+        print()
+        logger.info(f"Valutazione {model_name}...")
         # Valutazione test
         test_m, cm, y_true, y_pred = evaluate_dl_model(
             model, test_dl, criterion, device
@@ -331,7 +342,7 @@ def run_phase2_dl(data: dict, config: dict,
         y_score = np.concatenate(probs_list, axis=0)
 
         logger.info(
-            f"{model_name} test — "
+            f"  {model_name} test — "
             f"acc {test_m['accuracy']:.4f}  "
             f"f1 {test_m['f1']:.4f}  "
             f"loss {test_m['loss']:.4f}"
@@ -340,6 +351,7 @@ def run_phase2_dl(data: dict, config: dict,
         # Salva pesi
         save_path = os.path.join(models_dir, f"{model_name}_best_model.pt")
         torch.save(model.state_dict(), save_path)
+        print()
         logger.info(f"Modello salvato in {save_path.replace(os.sep, '/')}")
 
         all_results[model_name] = {
@@ -366,9 +378,9 @@ def run_phase3_svm(data: dict, config: dict, all_results: dict):
         return
 
     print()
-    logger.info("=" * 50)
-    logger.info("Training SVM...")
-    logger.info("=" * 50)
+    logger.info("=" * 15)
+    logger.info(" SVM model:")
+    logger.info("=" * 15)
 
     svm_train_res = train_svm(data, config)
     svm_eval_res  = evaluate_svm(data, config, svm_model=svm_train_res["model"])
@@ -404,22 +416,21 @@ def main():
 
     if args.quick:
         config["deep_learning"]["epochs"]                  = 5
-        config["deep_learning"]["batch_size"]              = 64
         config["uncertainty"]["mc_dropout_iterations"]     = 10
         config["interpretability"]["shap_samples"]         = 50
 
     setup_logging(config)
     device = _get_device(config)
 
-    logger.info("=" * 60)
-    logger.info("  CHEST X-RAY CLASSIFICATION — Barbera & Di Prima")
+    logger.info("=" * 77)
+    logger.info("  CHEST X-RAY CLASSIFICATION - Antonino Barbera e Giuseppe Lorenzo Di Prima")
     cls_type = config["classification"]["type"]
     logger.info(f"  Tipo di classificazione: {cls_type.upper()}")
     if torch.cuda.is_available():
         logger.info(f"  Device: {torch.cuda.get_device_name()}")
     else:
         logger.info("  Device: CPU")
-    logger.info("=" * 60)
+    logger.info("=" * 77)
 
     t_start     = time.time()
     all_results = {}
@@ -507,6 +518,9 @@ def main():
         logger.info("=" * 55)
 
         comparison = generate_full_report(all_results, data, config)
+        
+        print()
+        logger.info("Fase 5 completata.")
 
         print()
         logger.info("=" * 55)
@@ -517,8 +531,6 @@ def main():
             comparison, headers="keys", tablefmt="grid",
             floatfmt=".4f", showindex=False, missingval="-"
         ))
-        print()
-        logger.info("Fase 5 completata.")
 
     # ================================================================
     elapsed = time.time() - t_start

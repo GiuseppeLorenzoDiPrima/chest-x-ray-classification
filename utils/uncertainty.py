@@ -145,4 +145,5 @@ def run_uncertainty_analysis(dl_results: dict, data: dict, config: dict):
             from plot.visualization import plot_uncertainty_results
             plot_uncertainty_results(mc_results, y_test, model_name, config)
 
+    print()
     logger.info("Uncertainty Quantification completata.")

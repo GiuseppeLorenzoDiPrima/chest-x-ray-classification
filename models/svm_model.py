@@ -130,6 +130,7 @@ class VisionEmbeddings:
         logger.info(f"PCA salvata in {save_path}/pca.joblib")
 
         if create_scree:
+            logger.info(f"Creazione scree graph PCA (n_components={n_components})...")
             from plot.visualization import plot_scree_graph
             plot_scree_graph(pca, show=show_scree)
 
@@ -155,6 +156,8 @@ class VisionEmbeddings:
         ds.features = pca.transform(ds.features)
         ds.num_of_samples, ds.num_of_features = ds.features.shape
         if create_scree:
+            print()
+            logger.info(f"Creazione scree graph PCA...")
             from plot.visualization import plot_scree_graph
             plot_scree_graph(pca, show=show_scree)
         return ds
@@ -186,6 +189,10 @@ def train_svm(data: dict, config: dict) -> dict:
 
     if device == "cuda" and not torch.cuda.is_available():
         device = "cpu"
+        
+    logger.info(f'=' * 50)
+    logger.info("Estrazione embedding ViT + PCA + SMOTE...")
+    logger.info(f'=' * 50)
 
     ve = VisionEmbeddings(device=device)
     train_svm_ds, val_svm_ds, test_svm_ds = ve.extract_all(
@@ -205,6 +212,7 @@ def train_svm(data: dict, config: dict) -> dict:
         probability=svm_cfg["probability"],
     )
 
+    print()
     logger.info("Training SVM...")
     svm_model.fit(train_svm_ds.features, train_svm_ds.labels)
 
@@ -232,16 +240,21 @@ def train_svm(data: dict, config: dict) -> dict:
     val_metrics["loss"]   = val_loss
 
     logger.info(
-        f"SVM train — loss: {train_loss:.4f}  acc: {train_metrics['accuracy']:.4f}"
+        f"  SVM train — loss: {train_loss:.4f}  acc: {train_metrics['accuracy']:.4f}"
     )
     logger.info(
-        f"SVM val   — loss: {val_loss:.4f}  acc: {val_metrics['accuracy']:.4f}"
+        f"  SVM val   — loss: {val_loss:.4f}  acc: {val_metrics['accuracy']:.4f}"
     )
 
     os.makedirs(models_dir, exist_ok=True)
     model_path = os.path.join(models_dir, "SVM_best_model.pkl")
     dump(svm_model, model_path)
-    logger.info(f"SVM salvata in {model_path}")
+    
+    print()
+    logger.info(f"Salvataggio modello SVM...")
+    logger.info(f"  Modello SVM salvato in {model_path.replace(os.sep, '/')}")
+    
+    print()
 
     return {
         "model":         svm_model,
@@ -278,6 +291,7 @@ def evaluate_svm(data: dict, config: dict,
     if device == "cuda" and not torch.cuda.is_available():
         device = "cpu"
 
+    logger.info(f"Estrazione embedding ViT + PCA per test set...")
     # Embeddings test
     ve = VisionEmbeddings(device=device)
     pca_path = os.path.join(models_dir, "pca.joblib")
@@ -289,10 +303,15 @@ def evaluate_svm(data: dict, config: dict,
         show_scree=viz_cfg["show"],
     )
 
+    print()
+    logger.info(f"Caricamento modello SVM...")
+    
+
     if svm_model is None:
         model_path = os.path.join(models_dir, "SVM_best_model.pkl")
         svm_model  = load(model_path)
-        logger.info(f"SVM caricata da {model_path}")
+        
+    logger.info(f"SVM caricata da {model_path}")
 
     y_pred = svm_model.predict(test_ds.features)
     y_true = np.array(test_ds.labels)
@@ -311,9 +330,10 @@ def evaluate_svm(data: dict, config: dict,
     metrics["loss"] = loss
 
     cm = confusion_matrix(y_true, y_pred)
-    logger.info(
-        f"SVM test  — loss: {loss:.4f}  acc: {metrics['accuracy']:.4f}"
-    )
+    
+    print()
+    logger.info(f"Risultati del modello SVM sul test set:")
+    logger.info(f"  SVM test  — loss: {loss:.4f}  acc: {metrics['accuracy']:.4f}")
 
     return {
         "metrics":          metrics,
