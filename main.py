@@ -378,19 +378,12 @@ def run_phase3_svm(data: dict, config: dict, all_results: dict):
         return
 
     print()
-    logger.info("=" * 15)
+    logger.info("-" * 13)
     logger.info(" SVM model:")
-    logger.info("=" * 15)
+    logger.info("-" * 13)
 
     svm_train_res = train_svm(data, config)
     svm_eval_res  = evaluate_svm(data, config, svm_model=svm_train_res["model"])
-
-    logger.info(
-        f"SVM test — "
-        f"acc {svm_eval_res['metrics']['accuracy']:.4f}  "
-        f"f1 {svm_eval_res['metrics']['f1']:.4f}  "
-        f"loss {svm_eval_res['metrics']['loss']:.4f}"
-    )
 
     all_results["SVM"] = {
         "metrics":          svm_eval_res["metrics"],

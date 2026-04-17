@@ -20,8 +20,9 @@ matplotlib
 seaborn
 plotly
 
-# Dataset Kaggle
+# Dataset Kaggle and Hugging Face
 kaggle
+huggingface_hub
 
 # Configurazione e utilità
 pyyaml

@@ -306,10 +306,8 @@ def evaluate_svm(data: dict, config: dict,
     print()
     logger.info(f"Caricamento modello SVM...")
     
-
-    if svm_model is None:
-        model_path = os.path.join(models_dir, "SVM_best_model.pkl")
-        svm_model  = load(model_path)
+    model_path = os.path.join(models_dir, "SVM_best_model.pkl")
+    svm_model  = load(model_path)
         
     logger.info(f"SVM caricata da {model_path}")
 
