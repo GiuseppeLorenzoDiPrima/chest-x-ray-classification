@@ -1,0 +1,43 @@
+# Ambiente virtuale
+.venv/
+env/
+venv/
+
+# Dataset e output generati
+data/
+outs/
+
+# Modelli salvati e checkpoint
+checkpoints/
+*.pt
+*.pkl
+*.joblib
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Kaggle credentials (NON committare mai)
+kaggle.json
+.kaggle/
+
+# Log
+*.log

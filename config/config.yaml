@@ -1,0 +1,98 @@
+# =============================================================================
+# Chest X-Ray Classification — Configurazione Progetto
+# =============================================================================
+
+# --- Percorsi ---
+paths:
+  data_dir:    "data/chest_xray"
+  output_dir:  "outs"
+  figures_dir: "outs/imgs"
+  models_dir:  "outs/models"
+  results_dir: "outs/results"
+  log_dir:     "outs/logs"
+
+# --- Dataset Kaggle ---
+dataset:
+  kaggle_slug:      "paultimothymooney/chest-xray-pneumonia"
+  split_percentage: 0.90   # frazione del pool train+val usata per il training
+
+# --- Tipo di classificazione ---
+classification:
+  type: "binary"   # "binary"  → NORMAL vs PNEUMONIA (2 classi)
+                   # "ternary" → BACTERIA vs NORMAL vs VIRUS (3 classi)
+
+# --- Addestramento generale ---
+training:
+  device:                    "cuda"     # "cuda" o "cpu"
+  evaluation_metric:         "accuracy" # accuracy | precision | recall | f1 | loss
+  best_metric_lower_is_better: false
+  early_stopping_metric:     "loss"
+  early_stopping_patience:   3
+  learning_rate:             0.001
+
+# --- Deep Learning (ResNet / AlexNet) ---
+deep_learning:
+  epochs:               20
+  batch_size:           32
+  optimizer:            "adam"   # adam | sgd | rmsprop
+  warmup_ratio:         0.1
+  oversampling_strength: 1       # moltiplicatore del WeightedRandomSampler
+
+# --- SVM (con embeddings ViT + PCA + SMOTE) ---
+svm:
+  C:             1.0
+  gamma:         "scale"
+  kernel:        "rbf"
+  probability:   true
+  pca_components: 8
+
+# --- Architettura ResNet ---
+resnet:
+  layers:     [3, 4, 6, 3]
+  stride:     [2, 1]
+  padding:    [3, 1]
+  kernel:     [7, 3]
+  channels:   3
+  planes:     [64, 128, 256, 512]
+  in_features: 512
+  inplanes:    64
+
+# --- Architettura AlexNet ---
+alexnet:
+  stride:   [4, 2]
+  padding:  [2, 1]
+  kernel:   [8, 5, 3]
+  channels: 3
+  inplace:  true
+
+# --- Selezione modelli da addestrare ---
+models:
+  to_train: ["ResNet", "AlexNet", "SVM"]  # sottoinsieme qualsiasi
+
+# --- Interpretabilità (SHAP sui features PCA del SVM) ---
+interpretability:
+  enabled:              true
+  shap_samples:         200
+  background_clusters:  20
+
+# --- Uncertainty Quantification (MC Dropout sui modelli DL) ---
+uncertainty:
+  enabled:              true
+  mc_dropout_iterations: 50
+
+# --- Visualizzazione ---
+visualization:
+  graph:   true    # genera i grafici
+  show:    false   # mostra le finestre durante l'esecuzione
+  dpi:     300
+  figsize: [12, 8]
+  comparison_metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1"
+  comparison_group_metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1"

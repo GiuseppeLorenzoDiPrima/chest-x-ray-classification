@@ -1,13 +1,30 @@
+# Core
+numpy
+pandas
+scipy
+
+# Machine Learning
+scikit-learn
+imbalanced-learn
+
+# Deep Learning
 torch
 torchvision
-yaml_config_override
-addict
-tqdm
-scikit-learn
-numpy
-matplotlib
-pandas
-seaborn
 transformers
+
+# Interpretabilità
+shap
+
+# Visualizzazione
+matplotlib
+seaborn
+plotly
+
+# Dataset Kaggle
+kaggle
+
+# Configurazione e utilità
+pyyaml
+tqdm
 joblib
-imblearn
+tabulate
