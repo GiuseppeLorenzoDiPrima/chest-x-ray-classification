@@ -169,7 +169,7 @@ def generate_full_report(all_results: dict, data: dict, config: dict) -> pd.Data
     # CSV
     csv_path = os.path.join(results_dir, "model_comparison.csv")
     comparison.to_csv(csv_path, index=False)
-    logger.info(f"Tabella comparativa salvata in {csv_path}")
+    logger.info(f"Tabella comparativa salvata in {csv_path.replace(os.sep, '/')}")
 
     # Report testuale
     report_path = os.path.join(results_dir, "classification_reports.txt")
@@ -185,7 +185,7 @@ def generate_full_report(all_results: dict, data: dict, config: dict) -> pd.Data
                 y_true, y_pred, target_names=class_labels, zero_division=0
             ))
             fp.write("\n")
-    logger.info(f"Classification reports salvati in {report_path}")
+    logger.info(f"Classification reports salvati in {report_path.replace(os.sep, '/')}")
 
     # Grafici: confusion matrix + ROC per ogni modello
     if config["visualization"].get("graph", True):

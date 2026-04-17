@@ -106,8 +106,15 @@ def plot_class_distribution(data: dict, config: dict):
         "Test":       data["test_dataset"],
     }
 
-    for split_name, ds in splits.items():
-        targets = np.array(ds.targets)
+    all_splits = {**splits, "Overall": None}
+
+    for split_name, ds in all_splits.items():
+        if ds is None:
+            targets = np.concatenate([
+                np.array(splits[s].targets) for s in splits
+            ])
+        else:
+            targets = np.array(ds.targets)
         unique, counts = np.unique(targets, return_counts=True)
         split_labels   = [labels[u] for u in unique]
 
@@ -117,8 +124,9 @@ def plot_class_distribution(data: dict, config: dict):
             color=[IEEE_PALETTE[i % len(IEEE_PALETTE)] for i in range(len(unique))],
             edgecolor="#333333", linewidth=0.8,
         )
+        title_suffix = "intero dataset" if split_name == "Overall" else f"{split_name} set"
         ax.set_ylabel("Numero di campioni", fontweight="bold")
-        ax.set_title(f"Distribuzione classi — {split_name} set", pad=12)
+        ax.set_title(f"Distribuzione classi — {title_suffix}", pad=12)
         ax.grid(True, linestyle=":", alpha=0.7, color="#A9A9A9", axis="y", zorder=0)
         for bar in bars:
             bar.set_zorder(2)
@@ -156,7 +164,8 @@ def plot_training_history(
     config             : configurazione YAML
     """
     setup_publication_style(config)
-    fig_dir = os.path.join(config["paths"]["figures_dir"], "training")
+    safe_name = model_name.lower().replace(" ", "_")
+    fig_dir = os.path.join(config["paths"]["figures_dir"], "training", safe_name)
     os.makedirs(fig_dir, exist_ok=True)
     dpi     = config["visualization"]["dpi"]
     figsize = [14, 8]
@@ -257,6 +266,9 @@ def plot_roc_curves(
 
     n_classes = len(labels)
     y_bin     = label_binarize(y_true, classes=list(range(n_classes)))
+    # label_binarize restituisce shape (n, 1) per caso binario — espandiamo a (n, 2)
+    if n_classes == 2:
+        y_bin = np.column_stack([1 - y_bin, y_bin])
 
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     for i in range(n_classes):
@@ -449,7 +461,8 @@ def plot_uncertainty_results(
     3. Boxplot incertezza per classe
     """
     setup_publication_style(config)
-    unc_dir = os.path.join(config["paths"]["figures_dir"], "uncertainty")
+    safe    = model_name.lower().replace(" ", "_")
+    unc_dir = os.path.join(config["paths"]["figures_dir"], "uncertainty", safe)
     os.makedirs(unc_dir, exist_ok=True)
     dpi     = config["visualization"]["dpi"]
     figsize = [10, 8]
@@ -459,7 +472,6 @@ def plot_uncertainty_results(
     entropy = mc_results["entropy"]
     y_pred  = mc_results["predictions"]
     correct = y_pred == y_test
-    safe    = model_name.lower().replace(" ", "_")
 
     # 1. Distribuzione entropia
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)

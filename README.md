@@ -93,6 +93,21 @@ Entrambi gli script eseguono automaticamente:
 > Kaggle. Crea il file `~/.kaggle/kaggle.json` con il tuo API token
 > ([istruzioni](https://www.kaggle.com/docs/api)).
 
+> [!TIP]
+> Per velocizzare il download dei pesi ViT da Hugging Face (usati dall'SVM per
+> l'estrazione degli embeddings), puoi autenticarti con un token HF:
+>
+> 1. Crea un token su [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+>    (tipo: *Read*)
+> 2. Esegui da terminale (con il venv attivo):
+>    ```bash
+>    huggingface-cli login
+>    ```
+> 3. Incolla il token quando richiesto.
+>
+> Senza autenticazione il download funziona comunque, ma potrebbe essere soggetto
+> a rate limiting.
+
 ---
 
 ## Dataset

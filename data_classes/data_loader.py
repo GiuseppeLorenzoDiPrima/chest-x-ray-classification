@@ -69,8 +69,24 @@ def download_dataset(config: dict):
     if os.path.exists(nested):
         for item in os.listdir(nested):
             shutil.move(os.path.join(nested, item), os.path.join(data_dir, item))
-        os.rmdir(nested)
+        shutil.rmtree(nested)
         logger.info("Struttura cartelle normalizzata.")
+
+    # Rimuovi tutto ciò che non è train/test/val (es. __MACOSX__, .DS_Store, ecc.)
+    _cleanup_data_dir(data_dir)
+
+
+def _cleanup_data_dir(data_dir: str):
+    """Rimuove da data_dir qualsiasi file o cartella che non sia train, test o val."""
+    expected = {"train", "test", "val"}
+    for item in os.listdir(data_dir):
+        if item not in expected:
+            item_path = os.path.join(data_dir, item)
+            if os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+            else:
+                os.remove(item_path)
+            logger.info(f"Rimosso elemento spurio: '{item}'")
 
 
 # ---------------------------------------------------------------------------

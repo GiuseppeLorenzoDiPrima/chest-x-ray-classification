@@ -340,7 +340,7 @@ def run_phase2_dl(data: dict, config: dict,
         # Salva pesi
         save_path = os.path.join(models_dir, f"{model_name}_best_model.pt")
         torch.save(model.state_dict(), save_path)
-        logger.info(f"Modello salvato in {save_path}")
+        logger.info(f"Modello salvato in {save_path.replace(os.sep, '/')}")
 
         all_results[model_name] = {
             "metrics":          test_m,
