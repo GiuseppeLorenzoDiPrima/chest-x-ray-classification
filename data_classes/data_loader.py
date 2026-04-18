@@ -42,13 +42,30 @@ def load_config(path: str = "config/config.yaml") -> dict:
 # Download Kaggle
 # ---------------------------------------------------------------------------
 
+SPLITS = ("train", "val", "test")
+
+
 def download_dataset(config: dict):
-    """Scarica il dataset da Kaggle se non è già presente nella data_dir."""
+    """Scarica il dataset da Kaggle e normalizza la struttura cartelle."""
     data_dir = config["paths"]["data_dir"]
-    if os.path.exists(data_dir) and os.listdir(data_dir):
+
+    if _has_final_structure(data_dir):
         logger.info(f"Dataset già presente in '{data_dir}'. Skip download.")
         return
 
+    if not (os.path.exists(data_dir) and os.listdir(data_dir)):
+        _download_from_kaggle(config, data_dir)
+    else:
+        logger.info(
+            f"Contenuto trovato in '{data_dir}' ma struttura non normalizzata. "
+            "Riorganizzazione in corso..."
+        )
+
+    _normalize_structure(data_dir)
+    logger.info(f"Struttura dataset pronta in '{data_dir}'.")
+
+
+def _download_from_kaggle(config: dict, data_dir: str):
     try:
         import kaggle  # type: ignore
     except ImportError:
@@ -64,29 +81,81 @@ def download_dataset(config: dict):
     kaggle.api.dataset_download_files(slug, path=data_dir, unzip=True, quiet=False)
     logger.info("Download completato.")
 
-    # Il dataset viene estratto in una sotto-cartella 'chest_xray'
-    nested = os.path.join(data_dir, "chest_xray")
-    if os.path.exists(nested):
-        for item in os.listdir(nested):
-            shutil.move(os.path.join(nested, item), os.path.join(data_dir, item))
-        shutil.rmtree(nested)
-        logger.info("Struttura cartelle normalizzata.")
 
-    # Rimuovi tutto ciò che non è train/test/val (es. __MACOSX__, .DS_Store, ecc.)
-    _cleanup_data_dir(data_dir)
+def _normalize_structure(data_dir: str):
+    """
+    Porta la struttura a data_dir/{train,val,test}, indipendentemente
+    dal livello di annidamento prodotto dall'archivio Kaggle
+    (es. chest_xray/chest_xray/chest_xray) e rimuove residui come
+    __MACOSX, .DS_Store, ecc.
+    """
+    src = _find_splits_dir(data_dir)
+    if src is None:
+        raise RuntimeError(
+            f"Struttura dataset non riconosciuta in '{data_dir}': "
+            f"nessuna cartella contiene train/val/test."
+        )
 
+    if os.path.abspath(src) != os.path.abspath(data_dir):
+        logger.info(f"Split individuati in '{src}'. Promozione a '{data_dir}'.")
+        # Sposta prima gli split in una cartella temporanea per evitare
+        # conflitti se src è annidato dentro data_dir e data_dir contiene
+        # già cartelle omonime (duplicati dell'archivio).
+        staging = os.path.join(data_dir, "__staging__")
+        if os.path.exists(staging):
+            shutil.rmtree(staging)
+        os.makedirs(staging)
+        for split in SPLITS:
+            src_split = os.path.join(src, split)
+            if os.path.exists(src_split):
+                shutil.move(src_split, os.path.join(staging, split))
 
-def _cleanup_data_dir(data_dir: str):
-    """Rimuove da data_dir qualsiasi file o cartella che non sia train, test o val."""
-    expected = {"train", "test", "val"}
-    for item in os.listdir(data_dir):
-        if item not in expected:
+        # Rimuove tutto il resto (cartelle annidate, duplicati, __MACOSX, ...)
+        for item in os.listdir(data_dir):
+            if item == "__staging__":
+                continue
             item_path = os.path.join(data_dir, item)
             if os.path.isdir(item_path):
                 shutil.rmtree(item_path)
             else:
                 os.remove(item_path)
-            logger.info(f"Rimosso elemento spurio: '{item}'")
+
+        # Promuove gli split dalla staging a data_dir
+        for split in SPLITS:
+            staged = os.path.join(staging, split)
+            if os.path.exists(staged):
+                shutil.move(staged, os.path.join(data_dir, split))
+        os.rmdir(staging)
+
+    _cleanup_data_dir(data_dir)
+
+
+def _find_splits_dir(root: str) -> str | None:
+    """Prima cartella sotto root che contiene tutti e tre gli split Kaggle."""
+    for dirpath, dirnames, _ in os.walk(root):
+        if set(SPLITS).issubset(set(dirnames)):
+            return dirpath
+    return None
+
+
+def _has_final_structure(data_dir: str) -> bool:
+    if not os.path.isdir(data_dir):
+        return False
+    items = set(os.listdir(data_dir))
+    return set(SPLITS).issubset(items) and "chest_xray" not in items
+
+
+def _cleanup_data_dir(data_dir: str):
+    """Rimuove da data_dir qualsiasi file o cartella che non sia train, test o val."""
+    for item in os.listdir(data_dir):
+        if item in SPLITS:
+            continue
+        item_path = os.path.join(data_dir, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+        else:
+            os.remove(item_path)
+        logger.info(f"Rimosso elemento spurio: '{item}'")
 
 
 # ---------------------------------------------------------------------------

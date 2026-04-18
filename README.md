@@ -13,7 +13,7 @@ Pipeline sperimentale per la classificazione di radiografie toraciche, fondata s
 - Confronto sistematico tra approcci di Deep Learning e Support Vector Machine potenziato da rappresentazioni ViT
 - Modalità **binaria** (NORMAL / PNEUMONIA) e **ternaria** (BACTERIA / NORMAL / VIRUS)
 
-###### **Obiettivo: valutare e comparare quantitativamente le prestazioni di ResNet, AlexNet e SVM su dati radiologici reali, corredando l'analisi di tecniche di interpretabilità (SHAP) e di quantificazione dell'incertezza predittiva (MC Dropout)**.
+###### **Obiettivo: valutare e comparare quantitativamente le prestazioni dei modelli ResNet, AlexNet e SVM su dati radiologici reali, valutando interpretabilità (SHAP) ed incertezza predittiva (MC Dropout)**.
 
 ##### Risultati ottenuti
 
