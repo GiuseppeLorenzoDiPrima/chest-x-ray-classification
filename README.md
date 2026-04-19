@@ -17,13 +17,64 @@ Pipeline sperimentale per la classificazione di radiografie toraciche, fondata s
 
 ##### Risultati ottenuti
 
+###### Scenario di classificazione binaria
+
 <div align="center">
 
 <table>
   <tr>
     <th>Modello</th>
     <th>Accuracy</th>
-    <th>F1 Macro</th>
+    <th>F1-Score Macro</th>
+    <th>Precision Macro</th>
+    <th>Recall Macro</th>
+    <th>Loss</th>
+    <th>Train Time (s)</th>
+  </tr>
+
+  <tr>
+    <td>ResNet</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+  </tr>
+
+  <tr>
+    <td>AlexNet</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+  </tr>
+
+  <tr>
+    <td>SVM (ViT + PCA + SMOTE)</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+    <td>—</td>
+  </tr>
+
+</table>
+
+</div>
+
+###### Scenario di classificazione ternaria
+
+<div align="center">
+
+<table>
+  <tr>
+    <th>Modello</th>
+    <th>Accuracy</th>
+    <th>F1-Score Macro</th>
     <th>Precision Macro</th>
     <th>Recall Macro</th>
     <th>Loss</th>

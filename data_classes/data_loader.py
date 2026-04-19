@@ -284,28 +284,49 @@ class ChestXrayDataset(Dataset):
     """
     Dataset per immagini radiografiche del torace.
 
-    Legge le immagini da una struttura ImageFolder standard, rimuovendo
-    temporaneamente eventuali sotto-cartelle vuote che disturberebbero
-    la numerazione delle classi.
+    Garantisce che tutte le classi attese siano presenti e che gli indici
+    delle classi siano coerenti tra split anche quando uno split non
+    contiene esempi di una determinata classe (caso tipico: il `val`
+    originale di Kaggle, talmente piccolo che dopo la conversione in
+    struttura ternaria può non avere file BACTERIA o VIRUS).
     """
 
-    def __init__(self, split: str, root: str, transform=None):
+    def __init__(self, split: str, root: str, classes: list[str], transform=None):
         path = os.path.join(root, split)
-        self._removed: list[str] = []
 
+        # Garantisce che tutte le classi attese esistano come sotto-cartelle.
+        for cls in classes:
+            os.makedirs(os.path.join(path, cls), exist_ok=True)
+
+        # ImageFolder rifiuta cartelle vuote: rimuovile temporaneamente.
+        removed: list[str] = []
         for sub in os.scandir(path):
             if sub.is_dir() and not any(os.scandir(sub.path)):
-                logger.warning(f"Sotto-cartella vuota rimossa temporaneamente: {sub.path}")
-                self._removed.append(sub.path)
+                logger.warning(f"Classe vuota nello split '{split}': {sub.name}")
+                removed.append(sub.path)
                 os.rmdir(sub.path)
 
-        self.data    = ImageFolder(path, transform=transform)
+        self.data = ImageFolder(path, transform=transform)
+
+        for p in removed:
+            os.makedirs(p, exist_ok=True)
+
+        # Riallinea il mapping delle classi a quello canonico, così che gli
+        # indici dei target siano identici in ogni split (necessario per
+        # poter concatenare train+val senza falsare le label).
+        if list(self.data.classes) != list(classes):
+            remap = {old_idx: classes.index(name)
+                     for name, old_idx in self.data.class_to_idx.items()}
+            self.data.samples = [(p, remap[t]) for p, t in self.data.samples]
+            if hasattr(self.data, "imgs"):
+                self.data.imgs = self.data.samples
+            self.data.targets = [remap[t] for t in self.data.targets]
+            self.data.classes = list(classes)
+            self.data.class_to_idx = {c: i for i, c in enumerate(classes)}
+
         self.classes = self.data.classes
         self.targets = self.data.targets
         self.path    = path
-
-        for p in self._removed:
-            os.makedirs(p, exist_ok=True)
 
     def __len__(self) -> int:
         return len(self.data)
@@ -411,9 +432,10 @@ def load_and_preprocess(config: dict) -> dict:
 
     # 3. Caricamento
     tfms     = _get_transforms()
-    train_ds = ChestXrayDataset("train", data_dir, transform=tfms["train"])
-    val_ds   = ChestXrayDataset("val",   data_dir, transform=tfms["val"])
-    test_ds  = ChestXrayDataset("test",  data_dir, transform=tfms["test"])
+    classes  = BINARY_CLASSES if cls_type == "binary" else TERNARY_CLASSES
+    train_ds = ChestXrayDataset("train", data_dir, classes, transform=tfms["train"])
+    val_ds   = ChestXrayDataset("val",   data_dir, classes, transform=tfms["val"])
+    test_ds  = ChestXrayDataset("test",  data_dir, classes, transform=tfms["test"])
 
     logger.info("\nDataset originali:")
     _log_split_info("Train",      train_ds, cls_type)
