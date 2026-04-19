@@ -312,12 +312,18 @@ def run_phase2_dl(data: dict, config: dict,
         logger.info(f"{'=' * 35}")
         logger.info(f"  Training {model_name} model...")
         logger.info(f"{'=' * 35}")
+        train_start = time.perf_counter()
         _, train_hist, val_hist = _train_dl_model(
             model, model_name, config, train_dl, val_dl, device
         )
+        elapsed = time.perf_counter() - train_start
+        elapsed_min, elapsed_sec = divmod(elapsed, 60)
 
         print()
-        logger.info(f"Addestramento {model_name} completato. Creazione dei grafici...")
+        logger.info(
+            f"Addestramento {model_name} completato in "
+            f"{int(elapsed_min)}m {elapsed_sec:.1f}s. Creazione dei grafici..."
+        )
         
         # Grafici training
         if config["visualization"].get("graph", True):

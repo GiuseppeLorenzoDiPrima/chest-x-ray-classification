@@ -1,7 +1,7 @@
 # Chest X-Ray Classification
 ## Deep Learning e SVM applicati alla Diagnosi Medica
 
-> Classificazione automatica di radiografie toraciche pediatriche in configurazione binaria (NORMAL / PNEUMONIA) e ternaria (BACTERIA / NORMAL / VIRUS) mediante reti neurali profonde (ResNet, AlexNet) e Support Vector Machine con rappresentazioni estratte da un Vision Transformer pre-addestrato.
+> Classificazione automatica di radiografie toraciche pediatriche in configurazione binaria (NORMAL / PNEUMONIA) e ternaria (BACTERIA / NORMAL / VIRUS) mediante reti neurali profonde (ResNet, AlexNet) e Support Vector Machine con rappresentazioni (embeddings) estratte da un Vision Transformer pre-addestrato.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red)
@@ -10,10 +10,10 @@
 
 Pipeline sperimentale per la classificazione di radiografie toraciche, fondata su:
 - ~5.856 immagini JPEG acquisite su pazienti pediatrici (1–5 anni, Guangzhou)
-- Confronto sistematico tra approcci di Deep Learning e Support Vector Machine potenziato da rappresentazioni ViT
-- Modalità **binaria** (NORMAL / PNEUMONIA) e **ternaria** (BACTERIA / NORMAL / VIRUS)
+- Confronto sistematico tra approcci di Deep Learning e Support Vector Machine applicato agli embeddings estratti tramite ViT
+- Modalità di classificazione **binaria** (NORMAL / PNEUMONIA) e **ternaria** (BACTERIA / NORMAL / VIRUS)
 
-###### **Obiettivo: valutare e comparare quantitativamente le prestazioni dei modelli ResNet, AlexNet e SVM su dati radiologici reali, valutando interpretabilità (SHAP) ed incertezza predittiva (MC Dropout)**.
+###### **Obiettivo: valutare e comparare quantitativamente le prestazioni dei modelli ResNet, AlexNet e SVM su dati radiologici reali. Analisi ulteriormente approfondita attraverso la valutazione dell'interpretabilità (SHAP) e dell'incertezza predittiva (MC Dropout)**.
 
 ##### Risultati ottenuti
 
@@ -25,41 +25,41 @@ Pipeline sperimentale per la classificazione di radiografie toraciche, fondata s
   <tr>
     <th>Modello</th>
     <th>Accuracy</th>
-    <th>F1-Score Macro</th>
     <th>Precision Macro</th>
     <th>Recall Macro</th>
+    <th>F1-Score Macro</th>
     <th>Loss</th>
     <th>Train Time (s)</th>
   </tr>
 
   <tr>
     <td>ResNet</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.9022</td>
+    <td>0.9284</td>
+    <td>0.8714</td>
+    <td>0.8894</td>
+    <td>0.4366</td>
+    <td>1h 17min 51sec</td>
   </tr>
 
   <tr>
     <td>AlexNet</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.8526</td>
+    <td>0.8914</td>
+    <td>0.8077</td>
+    <td>0.8275</td>
+    <td>0.5073</td>
+    <td>1h 20min 43sec</td>
   </tr>
 
   <tr>
     <td>SVM (ViT + PCA + SMOTE)</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.7981</td>
+    <td>0.7844</td>
+    <td>0.7897</td>
+    <td>0.7867</td>
+    <td>0.5769</td>
+    <td>2min 45sec</td>
   </tr>
 
 </table>
@@ -74,46 +74,48 @@ Pipeline sperimentale per la classificazione di radiografie toraciche, fondata s
   <tr>
     <th>Modello</th>
     <th>Accuracy</th>
-    <th>F1-Score Macro</th>
     <th>Precision Macro</th>
     <th>Recall Macro</th>
+    <th>F1-Score Macro</th>
     <th>Loss</th>
     <th>Train Time (s)</th>
   </tr>
 
   <tr>
     <td>ResNet</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.7131</td>
+    <td>0.7546</td>
+    <td>0.7237</td>
+    <td>0.6944</td>
+    <td>0.9600</td>
+    <td>1h 24min 55sec</td>
   </tr>
 
   <tr>
     <td>AlexNet</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.8253</td>
+    <td>0.8155</td>
+    <td>0.8143</td>
+    <td>0.8119</td>
+    <td>0.5786</td>
+    <td>1h 6min 10sec</td>
   </tr>
 
   <tr>
     <td>SVM (ViT + PCA + SMOTE)</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
-    <td>—</td>
+    <td>0.7292</td>
+    <td>0.7169</td>
+    <td>0.7189</td>
+    <td>0.717</td>
+    <td>0.7638</td>
+    <td>2min 55sec</td>
   </tr>
 
 </table>
 
 </div>
+
+###### Alcuni grafici significativi
 
 <p align="center">
   <img src=".github/class_distribution_overall.png" height="220" width="45%">
@@ -131,8 +133,8 @@ Pipeline sperimentale per la classificazione di radiografie toraciche, fondata s
 
 ##### Key Insights
 
-- L'architettura residuale (ResNet) mitiga in modo più efficace il problema del vanishing gradient rispetto ad AlexNet, grazie all'impiego delle connessioni skip
-- L'SVM con rappresentazioni ViT consegue performance competitive pur non richiedendo risorse GPU durante la fase di inferenza
+- L'architettura residuale (ResNet) mitiga in modo più efficace il problema del vanishing gradient rispetto ad AlexNet, grazie all'impiego delle connessioni residuali (skip connection)
+- L'SVM addestrato sulle rappresentazioni (embeddings) estratte tramite ViT consegue performance competitive limitando significativamente i tempi di addestramento (ViT pre-addestrato)
 - Le componenti principali a maggiore varianza spiegata esibiscono il più elevato potere discriminante nella separazione tra classi
 
 ##### Configurabilità
@@ -142,13 +144,13 @@ Tutti i parametri sperimentali sono centralizzati e modificabili nel file `confi
 
 ## Introduzione
 
-Il presente elaborato è stato sviluppato nell'ambito dell'esame di Machine Learning, previsto dal piano di studi del Corso di Laurea Magistrale presso l'Università degli Studi di Enna Kore.
+Benvenuta/o, il presente elaborato è stato sviluppato nell'ambito dell'esame di Machine Learning, previsto dal piano di studi del Corso di Laurea Magistrale in Ingegneria dell'Intelligenza Artificiale e Sicurezza Informatica presso l'Università degli Studi di Enna Kore.
 
-Il lavoro propone un framework per la classificazione automatica di radiografie toraciche pediatriche mediante tecniche di Deep Learning e Machine Learning classico. Il sistema supporta due modalità operative: classificazione ternaria, finalizzata a distinguere le polmoniti batteriche (BACTERIA) da quelle virali (VIRUS) rispetto ai casi normali (NORMAL); e classificazione binaria, volta a discriminare i soggetti sani (NORMAL) dai pazienti affetti da polmonite (PNEUMONIA).
+Il lavoro propone un framework per la classificazione automatica di radiografie toraciche pediatriche mediante tecniche di Deep Learning e Machine Learning classico. Il sistema supporta due modalità operative: classificazione ternaria, finalizzata a distinguere le polmoniti batteriche (BACTERIA) da quelle virali (VIRUS) rispetto ai casi di soggetti sani (NORMAL); e classificazione binaria, volta a classificare tra soggetti sani (NORMAL) e pazienti affetti da polmonite (PNEUMONIA).
 
 I dati impiegati provengono dal dataset pubblico [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia), disponibile su Kaggle e raccolto presso il Guangzhou Women and Children's Medical Center. Il corpus comprende circa 5.856 immagini JPEG ripartite nei set di training, validazione e test.
 
-Sono posti a confronto tre approcci metodologici: ResNet (rete neurale convoluzionale con connessioni residue), AlexNet (architettura CNN classica) e SVM (Support Vector Machine con rappresentazioni estratte da un Vision Transformer pre-addestrato, riduzione dimensionale via PCA e bilanciamento del training set tramite SMOTE).
+Sono posti a confronto tre approcci metodologici: ResNet (rete neurale convoluzionale con connessioni residuali), AlexNet (architettura CNN classica) e SVM (Support Vector Machine addestrato sulle rappresentazioni estratte da un Vision Transformer pre-addestrato, riduzione dimensionale via PCA e bilanciamento del training set tramite SMOTE).
 
 ---
 
@@ -170,7 +172,7 @@ Sono posti a confronto tre approcci metodologici: ResNet (rete neurale convoluzi
 
 - **Python 3.11+** installato e disponibile da terminale (`python --version`)
 - **Connessione internet** (per scaricare il dataset da Kaggle alla prima esecuzione)
-- **GPU CUDA** raccomandata per il training DL (il codice funziona anche su CPU)
+- **GPU CUDA** raccomandata per il training DL (il codice viene eseguito in fallback su CPU)
 - **Account Kaggle** gratuito (credenziali API per il download automatico del dataset)
 
 Il dataset viene acquisito automaticamente mediante le API ufficiali Kaggle. Qualora il file **kaggle.json** non risulti ancora configurato nel proprio ambiente di lavoro, è necessario seguire la procedura riportata di seguito.
@@ -212,22 +214,36 @@ kaggle datasets list
 
 La comparsa di una lista di dataset attesta la corretta configurazione delle credenziali.
 
-### Passo 5 (opzionale) — Token Hugging Face
+>Qualora lo si preferisca, è possibile installare manualmente il dataset ed collocarlo al path: data\chest-xray
 
-Il modello SVM si avvale del Vision Transformer `google/vit-base-patch16-224` per l'estrazione di rappresentazioni dense. Il download dei pesi avviene automaticamente da Hugging Face anche in assenza di autenticazione; tuttavia, il possesso di un token personale incrementa la velocità di trasferimento ed elimina il rischio di throttling da parte del servizio.
+### Passo 6 (opzionale) — Token Hugging Face
 
-1. Creare un token *Read* su [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-2. Eseguire da terminale (con il venv attivo):
+Il modello SVM si avvale del Vision Transformer `google/vit-base-patch16-224` per l'estrazione di rappresentazioni dense (embeddings). Il download dei pesi avviene automaticamente da Hugging Face anche in assenza di autenticazione; tuttavia, il possesso di un token personale incrementa la velocità di trasferimento ed elimina il rischio di throttling da parte del servizio.
+
+1. Qualora non si disponga già di un account, è possibile registrarsi gratuitamente su [Hugging Face.](https://huggingface.co)
+2. Navigare alla pagina [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+3. Creare un token *Read*
+4. Eseguire da terminale (con il venv attivo):
 
 ```bash
 hf auth login
 ```
 
-3. Incollare il token nella finestra di dialogo quando richiesto.
+5. Incollare il token copiato nella finestra di dialogo quando richiesto.
 
 ---
 
 ## 2. Installazione
+
+### Clonazione della repository
+
+Per prima cosa è necessario procedere con la clonazione della repository. Aprire un terminale, portarsi al path dove di vuole installare il progetto e clonare la repository.
+Quanto sopra specificato si traduce in:
+```bash
+cd <tuo_percorso>
+git clone https://www.github.com/GiuseppeLorenzoDiPrima/chest-x-ray-classification
+```
+Clonata la repository, sarà necessario installare le dipendenza secondo quanto meglio precisato nel seguito.
 
 ### Metodo rapido (Windows)
 
@@ -291,7 +307,7 @@ pip install -r requirements.txt
 
 ## 3. Esecuzione
 
-> **Importante:** verificare che il virtual environment risulti attivo prima di lanciare qualsiasi comando. In assenza della cartella `.venv/` nella root del progetto, eseguire preventivamente la procedura di installazione descritta nella sezione precedente.
+> **Importante:** verificare che il virtual environment risulti attivo prima di lanciare qualsiasi comando. In assenza della cartella `.venv/` nella root del progetto, eseguire preventivamente la procedura di installazione descritta nella sezione "Metodo manuale" concorde al proprio sistema operativo presentata in precedenza.
 
 ```bash
 # Su Windows (cmd):
@@ -304,21 +320,31 @@ source .venv/bin/activate
 
 ### Pipeline completa
 
-Per avviare in sequenza l'intera pipeline (tutte e 5 le fasi):
+Per avviare in sequenza l'intera pipeline (tutte e 5 le fasi) portarsi al path di installazione ed eseguire il comando `python main.py`.
 
 ```bash
+cd <tuo_percorso>/chest-x-ray-classification
 python main.py
 ```
 
 ### Pipeline veloce (consigliata per il primo test)
 
-Esegue la pipeline completa limitando il training a 5 epoche. Raccomandata come test di sanità prima di procedere con l'addestramento definitivo:
+Esegue la pipeline completa limitando il training a 5 epoche. Raccomandata come test di sanità prima di procedere con l'addestramento definitivo.
 
 ```bash
+cd <tuo_percorso>/chest-x-ray-classification
 python main.py --quick
 ```
 
 ### Eseguire una singola fase
+
+Dopo essersi portati al path di installazione attraverso:
+
+```bash
+cd <tuo_percorso>/chest-x-ray-classification
+```
+
+È possibile eseguire anche solo una specifica fase di addestramento.
 
 ```bash
 python main.py --phase 1    # Solo caricamento dati e visualizzazione esplorativa
@@ -330,11 +356,26 @@ python main.py --phase 5    # Solo valutazione finale e confronto tra modelli
 
 ### Eseguire più fasi selezionate
 
+Dopo essersi portati al path di installazione attraverso:
+
+```bash
+cd <tuo_percorso>/chest-x-ray-classification
+```
+
+È possibile eseguire più fasi di addestramento.
+
 ```bash
 python main.py --phases 1 2 3    # Fasi 1, 2 e 3
 ```
 
 ### Usare una configurazione custom
+Dopo essersi portati al path di installazione attraverso:
+
+```bash
+cd <tuo_percorso>/chest-x-ray-classification
+```
+
+È possibile eseguire in accordo ad una configurazione personalizzata di addestramento.
 
 ```bash
 python main.py --config config/mia_config.yaml
@@ -347,7 +388,7 @@ python main.py --config config/mia_config.yaml
 ```
 chest-x-ray-classification/
 │
-├── main.py                  # Entry point — pipeline a 5 fasi
+├── main.py                  # Entry point - pipeline a 5 fasi
 ├── requirements.txt         # Dipendenze Python
 ├── prepare.bat              # Script di setup automatico (Windows)
 ├── prepare.sh               # Script di setup automatico (Linux/macOS)
@@ -393,7 +434,7 @@ chest-x-ray-classification/
 
 ### Fase 1 — Caricamento dati e visualizzazione esplorativa
 
-In questa fase il dataset viene scaricato da Kaggle (esclusivamente alla prima esecuzione) nella directory `data/chest_xray/`. Il sistema riorganizza automaticamente la struttura delle cartelle in funzione della modalità di classificazione selezionata (binaria o ternaria) e ridistribuisce i campioni tra training, validation e test set; tale ridistribuzione si rende necessaria in ragione del marcato sbilanciamento di classe presente nella suddivisione originale. La struttura è reversibile: la modifica del parametro `classification.type` nel file di configurazione comporta la riesecuzione automatica della conversione alla successiva esecuzione.
+In questa fase il dataset viene scaricato da Kaggle (esclusivamente alla prima esecuzione) nella directory `data/chest_xray/`. Il sistema riorganizza automaticamente la struttura delle cartelle in funzione della modalità di classificazione selezionata (binaria o ternaria) e ridistribuisce i campioni tra training, validation e test set; tale ridistribuzione si rende necessaria in ragione del marcato sbilanciamento di classe presente nella suddivisione originale. La struttura è reversibile: la modifica del parametro `classification.type` nel file di configurazione `config/config.yaml` comporta la riesecuzione automatica della conversione alla successiva esecuzione.
 
 ### Fase 2 — Training modelli Deep Learning
 
@@ -401,7 +442,7 @@ Vengono addestrati i modelli di Deep Learning specificati in `models.to_train` (
 
 ### Fase 3 — Training modello SVM
 
-Vengono estratte rappresentazioni dense a 768 dimensioni da ciascuna immagine mediante il Vision Transformer pre-addestrato `google/vit-base-patch16-224`. Alle rappresentazioni estratte viene applicata la Principal Component Analysis per la riduzione dimensionale (numero di componenti configurabile in `config/config.yaml`). Il training set viene successivamente bilanciato tramite SMOTE (Synthetic Minority Oversampling Technique). Ultimata la fase di preprocessing, si procede all'addestramento del classificatore SVM con kernel RBF. Il modello addestrato e la trasformazione PCA vengono serializzati e persistiti in `outs/models/`.
+Vengono estratte rappresentazioni dense a 768 dimensioni da ciascuna immagine mediante il Vision Transformer pre-addestrato `google/vit-base-patch16-224`. Alle rappresentazioni estratte viene applicata la Principal Component Analysis per la riduzione dimensionale (numero di componenti configurabile in `config/config.yaml`). Il training set viene successivamente bilanciato tramite SMOTE (Synthetic Minority Oversampling Technique). Ultimata la fase di preprocessing, si procede all'addestramento del classificatore SVM con kernel RBF. Il modello addestrato e la trasformazione PCA vengono serializzati e memorizzati in `outs/models/`.
 
 ### Fase 4 — Interpretabilità e Uncertainty
 
@@ -409,7 +450,7 @@ Viene condotta una **SHAP Analysis** (`KernelExplainer`) per identificare le com
 
 ### Fase 5 — Valutazione finale e confronto
 
-Al termine di tutte le fasi di addestramento e valutazione, viene prodotta una tabella comparativa comprendente le seguenti metriche per ciascun modello: accuracy, precision (macro), recall (macro), F1-score (macro) e loss. I file `model_comparison.csv` e `classification_reports.txt` vengono archiviati in `outs/results/`. Per ogni modello vengono prodotte la matrice di confusione e le curve ROC one-vs-rest, corredate da grafici di confronto complessivo a barre orizzontali per singola metrica e a barre raggruppate per modello.
+Al termine di tutte le fasi di addestramento e valutazione, viene prodotta una tabella comparativa comprendente le seguenti metriche per ciascun modello: accuracy, precision (macro), recall (macro), F1-Score (macro) e loss. I file `model_comparison.csv` e `classification_reports.txt` vengono archiviati in `outs/results/`. Per ogni modello vengono prodotte la matrice di confusione e le curve ROC one-vs-rest, corredate da grafici di confronto complessivo a barre orizzontali per singola metrica e a barre raggruppate per modello.
 
 ---
 
@@ -422,7 +463,7 @@ Tutti i parametri sperimentali sono centralizzati in **`config/config.yaml`** e 
 | `paths` | Cartelle di input/output |
 | `dataset` | Slug Kaggle, percentuale split train/val |
 | `classification` | Tipo di classificazione (`binary` o `ternary`) |
-| `models` | Quali modelli addestrare |
+| `models` | Modelli da addestrare |
 | `deep_learning` | Epoche, batch size, optimizer, warmup, oversampling |
 | `training` | Learning rate, early stopping, metrica di valutazione |
 | `resnet` / `alexnet` | Iperparametri architettura |
@@ -444,14 +485,14 @@ classification:
 
 ```yaml
 models:
-  to_train: ["ResNet"]  # Viene utilizzata solo la ResNet
+  to_train: ["ResNet"]  # Viene addestrata solo la rete ResNet
 ```
 
 ### Esempio: modificare l'architettura ResNet
 
 ```yaml
 resnet:
-  layers: [2, 2, 2, 2]  # ResNet-18 (modello meno oneroso)
+  layers: [2, 2, 2, 2]  # ResNet-18 (modello meno computazionalmente oneroso)
   dropout: 0.3
 ```
 
@@ -459,32 +500,29 @@ resnet:
 
 ```yaml
 svm:
-  pca_components: 16    # Più feature per SVM
+  pca_components: 16    # Più features per SVM
   C: 10.0
 ```
 
 > [!CAUTION]
-> Un modello addestrato in modalità **binaria** non è compatibile con dati in configurazione
-> ternaria e viceversa. È indispensabile mantenere la coerenza del parametro `classification.type`
-> tra le fasi di addestramento e valutazione; in caso di variazione della modalità operativa,
-> i pesi precedentemente salvati devono essere eliminati prima di procedere.
+> Un modello addestrato in modalità **binaria** non è compatibile con dati in configurazione ternaria e viceversa. È indispensabile mantenere la coerenza del parametro `classification.type` tra le fasi di addestramento e valutazione; in caso di variazione della modalità operativa, i pesi precedentemente salvati devono essere eliminati prima di procedere.
 
 ---
 
 ## 7. Output prodotti
 
-Al termine di un'esecuzione della pipeline (completa o parziale), i principali artefatti prodotti in `outs/` sono i seguenti:
+Al termine di un'esecuzione della pipeline (completa o parziale), i principali risultati prodotti in `outs/` sono i seguenti:
 
 ### Grafici (`outs/imgs/*/`)
 
 | File | Descrizione |
 |------|-------------|
 | `pre-processing/class_distribution_*.png` | Distribuzione delle classi per train, val, test e dataset completo |
-| `training/{model}/` | Loss e accuracy per epoch per ogni modello DL, in sottocartelle dedicate |
+| `training/{model}/` | Loss e accuracy per epoca per ogni modello DL, in sottocartelle dedicate |
 | `confusion_matrix/cm_*.png` | Matrice di confusione per ogni modello |
 | `roc_curves/roc_*.png` | Curve ROC one-vs-rest per ogni modello |
 | `model_comparison/model_*_comparison.png` | Confronto per singola metrica tra modelli |
-| `model_comparison/model_comparison_groups.png` | Confronto complessivo con barre raggruppate |
+| `model_comparison/model_comparison_groups.png` | Confronto complessivo tra modelli |
 | `uncertainty/{model}/uncertainty_entropy_*.png` | Distribuzione entropia: predizioni corrette vs errate |
 | `uncertainty/{model}/rejection_curve_*.png` | Accuracy vs percentuale eventi accettati |
 | `uncertainty/{model}/uncertainty_per_class_*.png` | Boxplot incertezza per classe |
@@ -526,9 +564,8 @@ Il presente progetto è distribuito sotto licenza MIT, una licenza open source p
 
 ## 9. Contatti
 
-**👤 Barbera Antonino**<br>🎓 Corso di Laurea Magistrale in Ingegneria dell'Intelligenza Artificiale e della Sicurezza Informatica<br>[🏫 Università degli Studi di Enna Kore, Italy](https://www.uke.it)
-<br>✉️ [antonino.barbera001@unikorestudent.it](mailto:antonino.barbera001@unikorestudent.it)
+**👤 Antonino Barbera**<br>🎓 Corso di Laurea Magistrale in Ingegneria dell'Intelligenza Artificiale e della Sicurezza Informatica<br>[🏫 Università degli Studi di Enna Kore, Italy](https://www.uke.it)<br>✉️ [antonino.barbera001@unikorestudent.it](mailto:antonino.barbera001@unikorestudent.it)
 
 ---
 
-**👤 Di Prima Giuseppe Lorenzo**, ORCID: [Giuseppe Lorenzo Di Prima](https://orcid.org/0009-0002-9470-9370)<br>🎓 Ph.D. in Sistemi Intelligenti per l'Ingegneria<br>[🏫 Università degli Studi di Enna Kore, Italy](https://www.uke.it)<br>✉️ [giuseppelorenzo.diprima@unikorestudent.it](mailto:giuseppelorenzo.diprima@unikorestudent.it)
+**👤 Giuseppe Lorenzo Di Prima**, ORCID: [Giuseppe Lorenzo Di Prima](https://orcid.org/0009-0002-9470-9370)<br>🎓 Ph.D. in Sistemi Intelligenti per l'Ingegneria<br>[🏫 Università degli Studi di Enna Kore, Italy](https://www.uke.it)<br>✉️ [giuseppelorenzo.diprima@unikorestudent.it](mailto:giuseppelorenzo.diprima@unikorestudent.it)

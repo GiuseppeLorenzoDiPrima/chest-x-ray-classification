@@ -108,6 +108,7 @@ def run_shap_analysis(all_results: dict, data: dict, config: dict):
             fig_dir=fig_dir,
             dpi=dpi,
             figsize=figsize,
+            config=config,
         )
 
     print()

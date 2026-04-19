@@ -13,6 +13,7 @@ che quella di test (carica PCA salvata, valuta su test set).
 
 import logging
 import os
+import time
 import warnings
 
 import numpy as np
@@ -155,7 +156,7 @@ class VisionEmbeddings:
         ds  = self._collect(self._extract(dataset, dataset_type))
         ds.features = pca.transform(ds.features)
         ds.num_of_samples, ds.num_of_features = ds.features.shape
-        if create_scree:
+        if create_scree and not os.path.exists("outs/imgs/pre-processing/pca_scree.png"):
             print()
             logger.info(f"Creazione scree graph PCA...")
             from plot.visualization import plot_scree_graph
@@ -195,6 +196,7 @@ def train_svm(data: dict, config: dict) -> dict:
     logger.info(f'=' * 50)
 
     ve = VisionEmbeddings(device=device)
+    emb_start = time.perf_counter()
     train_svm_ds, val_svm_ds, test_svm_ds = ve.extract_all(
         data["train_dataset"],
         data["val_dataset"],
@@ -203,6 +205,12 @@ def train_svm(data: dict, config: dict) -> dict:
         save_path      = models_dir,
         create_scree   = viz_cfg["graph"],
         show_scree     = viz_cfg["show"],
+    )
+    emb_elapsed = time.perf_counter() - emb_start
+    emb_min, emb_sec = divmod(emb_elapsed, 60)
+    logger.info(
+        f"Estrazione embedding ViT + PCA + SMOTE completata in "
+        f"{int(emb_min)}m {emb_sec:.1f}s."
     )
 
     svm_model = svm.SVC(
@@ -214,7 +222,13 @@ def train_svm(data: dict, config: dict) -> dict:
 
     print()
     logger.info("Training SVM...")
+    svm_train_start = time.perf_counter()
     svm_model.fit(train_svm_ds.features, train_svm_ds.labels)
+    svm_train_elapsed = time.perf_counter() - svm_train_start
+    svm_min, svm_sec = divmod(svm_train_elapsed, 60)
+    logger.info(
+        f"Addestramento SVM completato in {int(svm_min)}m {svm_sec:.1f}s."
+    )
 
     # Metriche train / val
     train_pred = svm_model.predict(train_svm_ds.features)

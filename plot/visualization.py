@@ -547,6 +547,7 @@ def plot_shap_results(
     fig_dir: str,
     dpi: int,
     figsize: tuple,
+    config: dict,
 ):
     """
     Genera summary plot, bar plot importanza media e plot per classe (SHAP).
@@ -560,9 +561,11 @@ def plot_shap_results(
     model_name    : nome del modello
     fig_dir       : cartella di salvataggio
     dpi, figsize  : parametri grafici
+    config        : configurazione YAML (stile IEEE)
     """
     import shap  # type: ignore
 
+    setup_publication_style(config)
     os.makedirs(fig_dir, exist_ok=True)
     safe = model_name.lower().replace(" ", "_")
 
@@ -574,15 +577,15 @@ def plot_shap_results(
     else:
         sv_list = [shap_values]
 
-    figsize_small = (6, 4)
-
     # 1. Summary aggregato
     shap.summary_plot(sv_list, X_sample, feature_names=feature_names,
                       class_names=class_labels, show=False, plot_size=None)
     fig_s = plt.gcf()
     ax_s  = plt.gca()
+    ax_s.set_xlabel("SHAP value", fontweight="bold")
     ax_s.set_title(f"SHAP Summary — {model_name}", fontsize=13, pad=12)
-    fig_s.set_size_inches(figsize_small)
+    ax_s.grid(True, linestyle=":", alpha=0.7, color="#A9A9A9", axis="x", zorder=0)
+    fig_s.set_size_inches(figsize)
     plt.tight_layout()
     plt.savefig(os.path.join(fig_dir, f"SHAP_summary_{safe}.png"), dpi=dpi)
     plt.close("all")
@@ -599,7 +602,7 @@ def plot_shap_results(
         mean_abs[sorted_idx],
         color=bar_colors, edgecolor="#333333", linewidth=0.8, zorder=2,
     )
-    ax.set_xlabel("Mean |SHAP value|", fontweight="bold")
+    ax.set_xlabel("SHAP value", fontweight="bold")
     ax.set_title(f"SHAP Feature Importance — {model_name}", pad=12)
     ax.grid(True, linestyle=":", alpha=0.7, color="#A9A9A9", axis="x", zorder=0)
     fig.tight_layout()
@@ -614,8 +617,10 @@ def plot_shap_results(
                           show=False, plot_size=None)
         fig_c = plt.gcf()
         ax_c  = plt.gca()
+        ax_c.set_xlabel("SHAP value", fontweight="bold")
         ax_c.set_title(f"SHAP {model_name} — {label}", fontsize=13, pad=12)
-        fig_c.set_size_inches(figsize_small)
+        ax_c.grid(True, linestyle=":", alpha=0.7, color="#A9A9A9", axis="x", zorder=0)
+        fig_c.set_size_inches(figsize)
         plt.tight_layout()
         safe_label = label.lower()
         plt.savefig(
